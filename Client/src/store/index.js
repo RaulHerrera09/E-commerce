@@ -1,0 +1,9 @@
+import { configureStore } from '@reduxjs/toolkit';
+import cartReducer from './slices/cart.slice';
+
+export const store = configureStore({
+    reducer: {
+        cart: cartReducer,
+        // Aquí agregare user: userReducer más adelante para el login
+    },
+});
