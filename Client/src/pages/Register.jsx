@@ -8,31 +8,28 @@ const Register = () => {
     const [serverError, setServerError] = useState("");
 
     const onSubmit = (data) => {
-        // Añadimos el rol por defecto como en tu código anterior
+
         const usuarioNuevo = {
             ...data,
-            rol: 'cliente' // Por defecto cliente
+            rol: 'cliente'
         };
 
-        // Simulamos el registro (o conectamos a backend si existiera la ruta)
+        // Simulamos el registro 
         console.log("Datos a registrar:", usuarioNuevo);
 
-        // Como tu backend actual es "Mock" (simulado), aquí simularemos el éxito
-        // para que puedas ver el flujo sin trabarte.
-        fetch("http://localhost:3001/api/register", {
+
+        fetch("https://api-easyelectroshop.onrender.com/api/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(usuarioNuevo)
         })
             .then(res => {
-                // Nota: Como no creamos la ruta /register en el server.js, esto dará 404,
-                // pero para efectos de tu demo visual, simularemos éxito forzado:
+
                 alert("¡Registro exitoso! (Simulado)");
                 navigate("/login");
             })
             .catch(error => {
-                // En un caso real, aquí manejamos el error. 
-                // Para tu demo, asumimos éxito para que avances.
+
                 alert("¡Registro exitoso! (Simulado)");
                 navigate("/login");
             });

@@ -11,7 +11,7 @@ const Home = () => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        fetch("http://localhost:3001/api/productos")
+        fetch("https://api-easyelectroshop.onrender.com/api/productos")
             .then((res) => res.json())
             .then((data) => {
                 setProductos(data);

@@ -12,7 +12,7 @@ const ProductDetail = () => {
 
     useEffect(() => {
         // Petición al backend para obtener un solo producto
-        fetch(`http://localhost:3001/api/productos/${id}`)
+        fetch(`https://api-easyelectroshop.onrender.com/api/productos/${id}`)
             .then(res => {
                 if (!res.ok) throw new Error("Producto no encontrado");
                 return res.json();

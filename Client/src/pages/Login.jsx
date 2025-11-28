@@ -26,8 +26,8 @@ const Login = () => {
             password: password
         };
 
-        // Petición al Backend (puerto 3001)
-        fetch("http://localhost:3001/api/login", {
+        // Petición al Backend 
+        fetch("https://api-easyelectroshop.onrender.com/api/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
