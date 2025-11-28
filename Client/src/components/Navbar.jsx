@@ -19,7 +19,7 @@ const Navbar = () => {
 
     if (userStr) {
         try {
-            // Intentamos parsear si guardaste un objeto JSON en el Login
+
             const userObj = JSON.parse(userStr);
             userName = userObj.nombre || userObj.firstName || "Usuario";
         } catch (e) {
@@ -62,7 +62,7 @@ const Navbar = () => {
 
                         {/* LOGO */}
                         <Link to="/" className="flex items-center gap-2 text-2xl font-bold text-gray-800 hover:text-blue-600 transition">
-                            <span>E-commerce</span>
+                            <span>EasyElectroShop</span>
                             <i className='bx bxs-shopping-bags text-blue-600'></i>
                         </Link>
 

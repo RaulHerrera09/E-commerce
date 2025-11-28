@@ -1,14 +1,15 @@
-// server/server.js
+
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const PORT = 3001; // Correrá en un puerto distinto al de React (que suele ser 5173)
+const PORT = 3001;
 
-app.use(cors()); // Permite que tu Frontend (React) le pida datos a este servidor
+app.use(cors());
 app.use(express.json());
 
-// --- BASE DE DATOS SIMULADA (Mock Data) ---
-// Basado en tu archivo: "Electrodomésticos", "Colores: Blanco, Gris platino"
+const usuariosRegistrados = [];
+
+
 const productos = [
     {
         id: 1,
@@ -102,14 +103,14 @@ const productos = [
     }
 ];
 
-// --- RUTAS (API) ---
+//RUTAS 
 
-// 1. Obtener todos los productos (Para tu Galería/Menú)
+// 1. Obtener todos los productos
 app.get('/api/productos', (req, res) => {
     res.json(productos);
 });
 
-// 2. Obtener un producto por ID (Para tu "Detalle de Producto")
+// 2. Obtener un producto por ID
 app.get('/api/productos/:id', (req, res) => {
     const id = parseInt(req.params.id);
     const producto = productos.find(p => p.id === id);
@@ -120,27 +121,52 @@ app.get('/api/productos/:id', (req, res) => {
     }
 });
 
-// 3. Login Simulado (Para tu "Inicio de Sesión")
+// 3. REGISTRO 
+app.post('/api/register', (req, res) => {
+    const usuarioNuevo = req.body;
+
+    usuariosRegistrados.push(usuarioNuevo);
+    console.log("Nuevo usuario registrado:", usuarioNuevo.fullName);
+    res.json({ mensaje: "Registro exitoso" });
+});
+
+// 4. LOGIN INTELIGENTE 
 app.post('/api/login', (req, res) => {
     const { correo, password } = req.body;
-    // Aquí podrías validar un admin, pero como es mock, dejamos pasar a cualquiera
-    // que tenga un correo válido.
-    if (correo) {
+
+
+    const usuarioEncontrado = usuariosRegistrados.find(u => u.email === correo && u.password === password);
+
+    if (usuarioEncontrado) {
+
         res.json({
             mensaje: "Login exitoso",
             usuario: {
-                nombre: "Usuario Demo",
-                correo: correo,
-                monedero: 5000, // Saldo inicial simulado
-                telefono: "555-000-0000"
+                nombre: usuarioEncontrado.fullName,
+                correo: usuarioEncontrado.email,
+                monedero: 5000,
+                telefono: usuarioEncontrado.phone
             }
         });
     } else {
-        res.status(400).json({ error: "Faltan datos" });
+
+        if (correo) {
+            res.json({
+                mensaje: "Login demo",
+                usuario: {
+                    nombre: "Usuario Demo",
+                    correo: correo,
+                    monedero: 5000,
+                    telefono: "555-000-0000"
+                }
+            });
+        } else {
+            res.status(400).json({ error: "Faltan datos" });
+        }
     }
 });
 
-// Iniciar servidor
+
 app.listen(PORT, () => {
     console.log(`Servidor Backend corriendo en http://localhost:${PORT}`);
 });

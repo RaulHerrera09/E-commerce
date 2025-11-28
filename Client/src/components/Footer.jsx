@@ -7,7 +7,7 @@ const Footer = () => {
 
                 {/* Columna 1 */}
                 <div>
-                    <h3 className="text-xl font-bold mb-4">E-commerce</h3>
+                    <h3 className="text-xl font-bold mb-4">EasyElectroShop</h3>
                     <p className="text-gray-400 text-sm">
                         La mejor tienda de electrodomésticos online. Calidad y garantía en cada compra.
                     </p>
@@ -17,8 +17,8 @@ const Footer = () => {
                 <div>
                     <h3 className="text-xl font-bold mb-4">Contacto</h3>
                     <ul className="text-gray-400 text-sm space-y-2">
-                        <li><i className="fa-solid fa-phone mr-2"></i> +52 555 123 4567</li>
-                        <li><i className="fa-solid fa-envelope mr-2"></i> soporte@ecommerce.com</li>
+                        <li><i className="fa-solid fa-phone mr-2"></i> +52 3318926231</li>
+                        <li><i className="fa-solid fa-envelope mr-2"></i> soporte@EasyElectroShop.com</li>
                         <li><i className="fa-solid fa-location-dot mr-2"></i> Guadalajara, Jal.</li>
                     </ul>
                 </div>
@@ -41,7 +41,7 @@ const Footer = () => {
             </div>
 
             <div className="text-center text-gray-600 text-xs mt-8 border-t border-gray-800 pt-4">
-                &copy; {new Date().getFullYear()} E-commerce Inc. Todos los derechos reservados.
+                &copy; {new Date().getFullYear()} EasyElectroShop. Todos los derechos reservados.
             </div>
         </footer>
     );

@@ -1,92 +1,120 @@
-import React from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const Purchases = () => {
-    // Datos simulados para demostración
-    const historialSimulado = [
+
+    // Datos de ejemplo 
+    const datosEjemplo = [
         {
-            id: "PED-8852",
+            id: "DEMO-001",
             fecha: "26/11/2025",
             total: 15999,
-            estado: "Enviado", // 
-            metodoPago: "Monedero Electrónico", // 
-            items: [
-                { nombre: "Refrigerador Smart Inverter", precio: 15999, cantidad: 1 }
-            ]
-        },
-        {
-            id: "PED-1024",
-            fecha: "20/11/2025",
-            total: 3200,
             estado: "Entregado",
-            metodoPago: "Tarjeta de Crédito",
-            items: [
-                { nombre: "Microondas Chef", precio: 3200, cantidad: 1 }
-            ]
+            metodoPago: "Monedero Electrónico",
+            items: [{ nombre: "Refrigerador Smart Inverter", precio: 15999, cantidad: 1 }]
         }
     ];
 
+    const [pedidos, setPedidos] = useState([]);
+
+    // Leemos la memoria del navegador
+    useEffect(() => {
+        const historialGuardado = localStorage.getItem('historial_compras');
+        if (historialGuardado) {
+            setPedidos(JSON.parse(historialGuardado));
+        } else {
+            setPedidos(datosEjemplo);
+        }
+    }, []);
+
+
+    const estadisticas = useMemo(() => {
+        const totalGastado = pedidos.reduce((acc, pedido) => acc + pedido.total, 0);
+        const totalPedidos = pedidos.length;
+        // Obtenemos la fecha del pedido más reciente 
+        const ultimaCompra = pedidos.length > 0 ? pedidos[0].fecha : "-";
+        return { totalGastado, totalPedidos, ultimaCompra };
+    }, [pedidos]);
+
     return (
         <div className="max-w-5xl mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-8 flex items-center gap-3">
-                <i className="fa-solid fa-box-open text-blue-600"></i> Mis Pedidos
-            </h1>
+            <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                    <i className="fa-solid fa-clock-rotate-left text-blue-600"></i> Historial de Compras
+                </h1>
+
+                <Link to="/" className="text-blue-600 font-semibold hover:underline">
+                    <i className="fa-solid fa-shop mr-2"></i> Ir a la tienda
+                </Link>
+            </div>
+
+            {/*  Dashboard  */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl p-6 text-white shadow-lg">
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-blue-100 text-sm font-bold uppercase mb-1">Total Gastado</p>
+                            <h2 className="text-4xl font-bold">${estadisticas.totalGastado.toLocaleString()}</h2>
+                        </div>
+                        <div className="p-3 bg-white/20 rounded-lg"><i className="fa-solid fa-sack-dollar text-2xl"></i></div>
+                    </div>
+                    <p className="text-xs text-blue-200 mt-4">Acumulado histórico</p>
+                </div>
+
+                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm flex flex-col justify-center">
+                    <div className="flex items-center gap-4">
+                        <div className="p-4 bg-orange-100 text-orange-600 rounded-full"><i className="fa-solid fa-box-open text-xl"></i></div>
+                        <div>
+                            <p className="text-gray-500 text-xs font-bold uppercase">Pedidos Realizados</p>
+                            <h2 className="text-3xl font-bold text-gray-800">{estadisticas.totalPedidos}</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm flex flex-col justify-center">
+                    <div className="flex items-center gap-4">
+                        <div className="p-4 bg-green-100 text-green-600 rounded-full"><i className="fa-regular fa-calendar-check text-xl"></i></div>
+                        <div>
+                            <p className="text-gray-500 text-xs font-bold uppercase">Última Compra</p>
+                            <h2 className="text-lg font-bold text-gray-800">{estadisticas.ultimaCompra}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h2 className="text-xl font-bold text-gray-700 mb-4">Detalle de Movimientos</h2>
 
             <div className="space-y-6">
-                {historialSimulado.map((pedido) => (
-                    <div key={pedido.id} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition">
-
-                        {/* Cabecera Gris */}
+                {pedidos.map((pedido, index) => (
+                    <div key={index} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition">
                         <div className="bg-gray-50 p-4 border-b border-gray-200 flex flex-wrap justify-between items-center gap-4 text-sm">
                             <div className="flex gap-8">
-                                <div>
-                                    <span className="block text-gray-500 uppercase text-xs font-bold">Fecha</span>
-                                    <span className="text-gray-800">{pedido.fecha}</span>
-                                </div>
-                                <div>
-                                    <span className="block text-gray-500 uppercase text-xs font-bold">Total</span>
-                                    <span className="text-gray-800 font-semibold">${pedido.total}</span>
-                                </div>
-                                <div>
-                                    <span className="block text-gray-500 uppercase text-xs font-bold">Pago</span>
-                                    <span className="text-gray-800">{pedido.metodoPago}</span>
-                                </div>
+                                <div><span className="block text-gray-500 uppercase text-xs font-bold">Fecha</span><span className="text-gray-800">{pedido.fecha}</span></div>
+                                <div><span className="block text-gray-500 uppercase text-xs font-bold">Total</span><span className="text-gray-800 font-semibold">${pedido.total.toLocaleString()}</span></div>
+                                <div><span className="block text-gray-500 uppercase text-xs font-bold">Pago</span><span className="text-gray-800">{pedido.metodoPago}</span></div>
                             </div>
-                            <div className="font-mono text-gray-500 text-xs">
-                                ID: {pedido.id}
-                            </div>
+                            <div className="font-mono text-gray-400 text-xs">ID: {pedido.id}</div>
                         </div>
 
-                        {/* Cuerpo del Pedido */}
                         <div className="p-6 flex flex-col md:flex-row gap-6 items-center">
-
-                            {/* Lista de productos */}
                             <div className="flex-1 w-full space-y-4">
-                                {pedido.items.map((item, index) => (
-                                    <div key={index} className="flex justify-between items-center">
+                                {pedido.items && pedido.items.map((item, idx) => (
+                                    <div key={idx} className="flex justify-between items-center border-b border-gray-100 last:border-0 pb-2 last:pb-0">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
-                                                <i className="fa-regular fa-image text-2xl"></i>
-                                            </div>
+                                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400"><i className="fa-solid fa-bag-shopping"></i></div>
                                             <div>
-                                                <h3 className="font-bold text-gray-800">{item.nombre}</h3>
-                                                <p className="text-gray-500 text-sm">Cantidad: {item.cantidad}</p>
+                                                <h3 className="font-bold text-gray-800 text-sm">{item.nombre}</h3>
+                                                {/* Validación extra por si item.cantidad no existe */}
+                                                <p className="text-gray-500 text-xs">Precio unitario</p>
                                             </div>
                                         </div>
-                                        <span className="font-bold text-blue-600">${item.precio}</span>
+                                        <span className="font-bold text-gray-600 text-sm">${item.precio.toLocaleString()}</span>
                                     </div>
                                 ))}
                             </div>
-
-                            {/* Estado del Envío */}
                             <div className="w-full md:w-auto md:border-l md:pl-6 flex flex-col items-end min-w-[150px]">
-                                <span className="text-xs text-gray-400 uppercase font-bold mb-2">Estado del Envío</span>
-                                <span className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 ${pedido.estado === 'Entregado'
-                                    ? 'bg-green-100 text-green-700'
-                                    : 'bg-blue-100 text-blue-700'
-                                    }`}>
-                                    <i className={`fa-solid ${pedido.estado === 'Entregado' ? 'fa-check' : 'fa-truck'}`}></i>
-                                    {pedido.estado}
+                                <span className="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+                                    <i className="fa-solid fa-truck-fast"></i> {pedido.estado}
                                 </span>
                             </div>
                         </div>
@@ -94,10 +122,14 @@ const Purchases = () => {
                 ))}
             </div>
 
+            {/* Botón para borrar historial */}
             <div className="mt-12 text-center">
-                <Link to="/" className="inline-block px-8 py-3 bg-gray-900 text-white font-bold rounded-full hover:bg-black transition">
-                    Seguir Comprando
-                </Link>
+                <button
+                    onClick={() => { localStorage.removeItem('historial_compras'); window.location.reload(); }}
+                    className="text-red-400 text-xs hover:text-red-600 underline"
+                >
+                    [Borrar Historial de Pruebas]
+                </button>
             </div>
         </div>
     );

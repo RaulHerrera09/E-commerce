@@ -8,14 +8,10 @@ const Cart = ({ show, handleClose }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    // Obtenemos el carrito directamente de Redux
     const cart = useSelector(state => state.cart || []);
-
-    // Cálculo del total 
     const totalShopping = cart.reduce((total, item) => total + Number(item.precio), 0);
 
     const deleteElement = (id) => {
-        // Borramos localmente usando la acción de Redux que creamos
         dispatch(removeFromCart(id));
     }
 
@@ -24,9 +20,10 @@ const Cart = ({ show, handleClose }) => {
     }
 
     const checkout = () => {
-        // Simulación de compra
+        // 1. Validamos que haya cosas en el carrito
         if (cart.length === 0) return;
 
+        // 2. Validamos que el usuario esté logueado
         const token = localStorage.getItem('token');
         if (!token) {
             navigate('/login');
@@ -34,38 +31,30 @@ const Cart = ({ show, handleClose }) => {
             return;
         }
 
-
-        // Como es demo, simulamos éxito:
-        alert("¡Compra realizada con éxito! 📦");
-        dispatch(setCart([]));
-        navigate('/purchases');
+        // 3. Redirigimos al Checkout (Pago)
+        navigate('/checkout');
         handleClose();
     };
 
     return (
-        /* Overlay  - Controlamos visibilidad con la prop 'show' */
         <div className={`fixed inset-0 z-50 transition-opacity duration-300 ${show ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
 
-            {/* Fondo negro transparente */}
             <div
                 className="absolute inset-0 bg-black bg-opacity-50"
                 onClick={handleClose}
             ></div>
 
-            {/* Panel Lateral */}
             <div className={`absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-xl transform transition-transform duration-300 ${show ? 'translate-x-0' : 'translate-x-full'}`}>
 
-                {/* Header del Carrito */}
                 <div className="flex justify-between items-center p-4 border-b">
                     <h2 className="text-xl font-bold text-gray-800">
                         Tu Carrito ({cart.length})
                     </h2>
                     <button onClick={handleClose} className="text-gray-500 hover:text-red-500 text-2xl">
-                        &times; {/* X para cerrar */}
+                        &times;
                     </button>
                 </div>
 
-                {/* Cuerpo: Lista de Productos */}
                 <div className="p-4 overflow-y-auto h-[calc(100%-200px)]">
                     {cart.length === 0 ? (
                         <div className="text-center text-gray-500 mt-10">
@@ -76,20 +65,17 @@ const Cart = ({ show, handleClose }) => {
                         <div className="space-y-4">
                             {cart.map((item, index) => (
                                 <div key={index} className="flex items-center gap-4 bg-gray-50 p-3 rounded shadow-sm">
-                                    {/* Imagen pequeña */}
                                     <img
                                         src={item.imagen}
                                         alt={item.nombre}
                                         className="w-16 h-16 object-cover rounded bg-white"
                                     />
 
-                                    {/* Info Producto */}
                                     <div className="flex-1">
                                         <h3 className="text-sm font-bold text-gray-800">{item.nombre}</h3>
                                         <p className="text-blue-600 font-semibold">${item.precio}</p>
                                     </div>
 
-                                    {/* Botón Eliminar */}
                                     <button
                                         onClick={() => deleteElement(item.id)}
                                         className="text-red-400 hover:text-red-600 transition p-2"
@@ -103,15 +89,13 @@ const Cart = ({ show, handleClose }) => {
                     )}
                 </div>
 
-                {/* Footer: Totales y Botones */}
                 <div className="absolute bottom-0 left-0 w-full p-4 bg-white border-t border-gray-200">
                     <div className="flex justify-between items-center mb-4 text-lg font-bold">
                         <span>Total:</span>
-                        <span className="text-blue-600">${totalShopping}</span>
+                        <span className="text-blue-600">${totalShopping.toLocaleString()}</span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
-                        {/* Botón Vaciar */}
                         <button
                             onClick={clearCart}
                             disabled={cart.length === 0}
@@ -120,7 +104,6 @@ const Cart = ({ show, handleClose }) => {
                             Vaciar
                         </button>
 
-                        {/* Botón Pagar */}
                         <button
                             onClick={checkout}
                             disabled={cart.length === 0}
