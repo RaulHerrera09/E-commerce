@@ -17,7 +17,7 @@ const Purchases = () => {
 
     const [pedidos, setPedidos] = useState([]);
 
-    // Leemos la memoria del navegador
+    // 1. CARGAR DATOS AL INICIO
     useEffect(() => {
         const historialGuardado = localStorage.getItem('historial_compras');
         if (historialGuardado) {
@@ -27,14 +27,68 @@ const Purchases = () => {
         }
     }, []);
 
+    // 2. SIMULACIÓN DE ENVÍO
+    useEffect(() => {
+        // Buscamos si hay algún pedido reciente que siga "Procesando"
+        const hayPedidosPendientes = pedidos.some(p => p.estado === "Procesando");
 
+        if (hayPedidosPendientes) {
+            const timer = setTimeout(() => {
+
+                const pedidosActualizados = pedidos.map(pedido => {
+                    if (pedido.estado === "Procesando") {
+                        return { ...pedido, estado: "Enviado" };
+                    }
+                    return pedido;
+                });
+
+                // Actualizamos el estado y la memoria del navegador
+                setPedidos(pedidosActualizados);
+                localStorage.setItem('historial_compras', JSON.stringify(pedidosActualizados));
+
+
+
+
+            }, 10000);
+
+
+            return () => clearTimeout(timer);
+        }
+    }, [pedidos]);
+
+    // CÁLCULOS AUTOMÁTICOS
     const estadisticas = useMemo(() => {
         const totalGastado = pedidos.reduce((acc, pedido) => acc + pedido.total, 0);
         const totalPedidos = pedidos.length;
-        // Obtenemos la fecha del pedido más reciente 
         const ultimaCompra = pedidos.length > 0 ? pedidos[0].fecha : "-";
         return { totalGastado, totalPedidos, ultimaCompra };
     }, [pedidos]);
+
+    // Función para asignar color y e ícono según el estado
+    const getStatusStyle = (estado) => {
+        switch (estado) {
+            case 'Procesando':
+                return {
+                    style: 'bg-blue-100 text-blue-700 animate-pulse',
+                    icon: 'fa-solid fa-hourglass-half'
+                };
+            case 'Enviado':
+                return {
+                    style: 'bg-green-100 text-green-700',
+                    icon: 'fa-solid fa-truck-fast'
+                };
+            case 'Entregado':
+                return {
+                    style: 'bg-gray-100 text-gray-700',
+                    icon: 'fa-solid fa-check-circle'
+                };
+            default:
+                return {
+                    style: 'bg-gray-100 text-gray-600',
+                    icon: 'fa-solid fa-question'
+                };
+        }
+    };
 
     return (
         <div className="max-w-5xl mx-auto px-4 py-8">
@@ -48,7 +102,7 @@ const Purchases = () => {
                 </Link>
             </div>
 
-            {/*  Dashboard  */}
+            {/* --- DASHBOARD --- */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                 <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl p-6 text-white shadow-lg">
                     <div className="flex justify-between items-start">
@@ -85,44 +139,52 @@ const Purchases = () => {
             <h2 className="text-xl font-bold text-gray-700 mb-4">Detalle de Movimientos</h2>
 
             <div className="space-y-6">
-                {pedidos.map((pedido, index) => (
-                    <div key={index} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition">
-                        <div className="bg-gray-50 p-4 border-b border-gray-200 flex flex-wrap justify-between items-center gap-4 text-sm">
-                            <div className="flex gap-8">
-                                <div><span className="block text-gray-500 uppercase text-xs font-bold">Fecha</span><span className="text-gray-800">{pedido.fecha}</span></div>
-                                <div><span className="block text-gray-500 uppercase text-xs font-bold">Total</span><span className="text-gray-800 font-semibold">${pedido.total.toLocaleString()}</span></div>
-                                <div><span className="block text-gray-500 uppercase text-xs font-bold">Pago</span><span className="text-gray-800">{pedido.metodoPago}</span></div>
-                            </div>
-                            <div className="font-mono text-gray-400 text-xs">ID: {pedido.id}</div>
-                        </div>
+                {pedidos.map((pedido, index) => {
+                    const statusConfig = getStatusStyle(pedido.estado);
 
-                        <div className="p-6 flex flex-col md:flex-row gap-6 items-center">
-                            <div className="flex-1 w-full space-y-4">
-                                {pedido.items && pedido.items.map((item, idx) => (
-                                    <div key={idx} className="flex justify-between items-center border-b border-gray-100 last:border-0 pb-2 last:pb-0">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400"><i className="fa-solid fa-bag-shopping"></i></div>
-                                            <div>
-                                                <h3 className="font-bold text-gray-800 text-sm">{item.nombre}</h3>
-                                                {/* Validación extra por si item.cantidad no existe */}
-                                                <p className="text-gray-500 text-xs">Precio unitario</p>
-                                            </div>
-                                        </div>
-                                        <span className="font-bold text-gray-600 text-sm">${item.precio.toLocaleString()}</span>
-                                    </div>
-                                ))}
+                    return (
+                        <div key={index} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition">
+                            <div className="bg-gray-50 p-4 border-b border-gray-200 flex flex-wrap justify-between items-center gap-4 text-sm">
+                                <div className="flex gap-8">
+                                    <div><span className="block text-gray-500 uppercase text-xs font-bold">Fecha</span><span className="text-gray-800">{pedido.fecha}</span></div>
+                                    <div><span className="block text-gray-500 uppercase text-xs font-bold">Total</span><span className="text-gray-800 font-semibold">${pedido.total.toLocaleString()}</span></div>
+                                    <div><span className="block text-gray-500 uppercase text-xs font-bold">Pago</span><span className="text-gray-800">{pedido.metodoPago}</span></div>
+                                </div>
+                                <div className="font-mono text-gray-400 text-xs">ID: {pedido.id}</div>
                             </div>
-                            <div className="w-full md:w-auto md:border-l md:pl-6 flex flex-col items-end min-w-[150px]">
-                                <span className="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
-                                    <i className="fa-solid fa-truck-fast"></i> {pedido.estado}
-                                </span>
+
+                            <div className="p-6 flex flex-col md:flex-row gap-6 items-center">
+                                <div className="flex-1 w-full space-y-4">
+                                    {pedido.items && pedido.items.map((item, idx) => (
+                                        <div key={idx} className="flex justify-between items-center border-b border-gray-100 last:border-0 pb-2 last:pb-0">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400"><i className="fa-solid fa-bag-shopping"></i></div>
+                                                <div>
+                                                    <h3 className="font-bold text-gray-800 text-sm">{item.nombre}</h3>
+                                                    <p className="text-gray-500 text-xs">Precio unitario</p>
+                                                </div>
+                                            </div>
+                                            <span className="font-bold text-gray-600 text-sm">${item.precio.toLocaleString()}</span>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* ESTADO DEL ENVÍO CON CAMBIO DINÁMICO */}
+                                <div className="w-full md:w-auto md:border-l md:pl-6 flex flex-col items-end min-w-[150px]">
+                                    <span className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all duration-500 ${statusConfig.style}`}>
+                                        <i className={statusConfig.icon}></i>
+                                        {pedido.estado}
+                                    </span>
+                                    {pedido.estado === "Procesando" && (
+                                        <p className="text-xs text-gray-400 mt-2 text-right">Actualizando en 10s...</p>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
-            {/* Botón para borrar historial */}
             <div className="mt-12 text-center">
                 <button
                     onClick={() => { localStorage.removeItem('historial_compras'); window.location.reload(); }}

@@ -8,30 +8,38 @@ const Register = () => {
     const [serverError, setServerError] = useState("");
 
     const onSubmit = (data) => {
-
         const usuarioNuevo = {
             ...data,
             rol: 'cliente'
         };
 
-        // Simulamos el registro 
-        console.log("Datos a registrar:", usuarioNuevo);
-
+        // Limpiamos errores previos antes de intentar
+        setServerError("");
 
         fetch("https://api-easyelectroshop.onrender.com/api/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(usuarioNuevo)
         })
-            .then(res => {
+            .then(async (res) => {
+                const respuesta = await res.json();
 
-                alert("¡Registro exitoso! (Simulado)");
+                // Si el servidor responde con un estado de error
+                if (!res.ok) {
+                    throw new Error(respuesta.error || "Error al registrar");
+                }
+
+                return respuesta;
+            })
+            .then(() => {
+                alert("¡Registro exitoso! Ahora inicia sesión.");
                 navigate("/login");
             })
             .catch(error => {
+                console.error("Error en registro:", error);
 
-                alert("¡Registro exitoso! (Simulado)");
-                navigate("/login");
+                const mensajeError = error?.message || "Ocurrió un error desconocido";
+                setServerError(String(mensajeError));
             });
     }
 
@@ -41,15 +49,17 @@ const Register = () => {
 
                 <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">Crear Cuenta</h2>
 
+                {/* Caja de Error */}
                 {serverError && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-                        {serverError}
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 text-sm font-bold text-center">
+                        <i className="fa-solid fa-circle-exclamation mr-2"></i>
+                        {String(serverError)}
                     </div>
                 )}
 
                 <form onSubmit={handleSubmit(onSubmit)}>
 
-                    {/* Campo: Nombre Completo  */}
+                    {/* Campo: Nombre Completo */}
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">Nombre Completo</label>
                         <input
@@ -58,10 +68,10 @@ const Register = () => {
                             placeholder="Ej. Juan Pérez"
                             {...register("fullName", { required: "El nombre es obligatorio" })}
                         />
-                        {errors.fullName && <p className="text-red-500 text-xs italic mt-1">{errors.fullName.message}</p>}
+                        {errors.fullName && <p className="text-red-500 text-xs italic mt-1">{String(errors.fullName.message)}</p>}
                     </div>
 
-                    {/* Campo: Correo  */}
+                    {/* Campo: Correo */}
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">Correo Electrónico</label>
                         <input
@@ -76,10 +86,10 @@ const Register = () => {
                                 }
                             })}
                         />
-                        {errors.email && <p className="text-red-500 text-xs italic mt-1">{errors.email.message}</p>}
+                        {errors.email && <p className="text-red-500 text-xs italic mt-1">{String(errors.email.message)}</p>}
                     </div>
 
-                    {/* Campo: Número Telefónico  */}
+                    {/* Campo: Número Telefónico */}
                     <div className="mb-4">
                         <label className="block text-gray-700 text-sm font-bold mb-2">Teléfono</label>
                         <input
@@ -92,7 +102,7 @@ const Register = () => {
                                 maxLength: { value: 10, message: "Debe tener 10 dígitos" }
                             })}
                         />
-                        {errors.phone && <p className="text-red-500 text-xs italic mt-1">{errors.phone.message}</p>}
+                        {errors.phone && <p className="text-red-500 text-xs italic mt-1">{String(errors.phone.message)}</p>}
                     </div>
 
                     {/* Campo: Contraseña */}
@@ -107,7 +117,7 @@ const Register = () => {
                                 minLength: { value: 6, message: "Mínimo 6 caracteres" }
                             })}
                         />
-                        {errors.password && <p className="text-red-500 text-xs italic mt-1">{errors.password.message}</p>}
+                        {errors.password && <p className="text-red-500 text-xs italic mt-1">{String(errors.password.message)}</p>}
                     </div>
 
                     {/* Botón de Registro */}

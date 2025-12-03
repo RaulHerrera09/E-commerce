@@ -125,6 +125,13 @@ app.get('/api/productos/:id', (req, res) => {
 app.post('/api/register', (req, res) => {
     const usuarioNuevo = req.body;
 
+    const usuarioExistente = usuariosRegistrados.find(u => u.email === usuarioNuevo.email);
+
+    if (usuarioExistente) {
+
+        return res.status(400).json({ error: "Este correo ya está registrado. Intenta iniciar sesión." });
+    }
+
     usuariosRegistrados.push(usuarioNuevo);
     console.log("Nuevo usuario registrado:", usuarioNuevo.fullName);
     res.json({ mensaje: "Registro exitoso" });

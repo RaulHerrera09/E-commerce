@@ -8,39 +8,58 @@ const Checkout = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    // Estados de reglas de negocio
+    //ESTADOS
+    const [direccion, setDireccion] = useState({
+        calle: '',
+        colonia: '',
+        ciudad: '',
+        estado: '',
+        cp: ''
+    });
+
     const [tipoEnvio, setTipoEnvio] = useState('gdl');
     const [requiereInstalacion, setRequiereInstalacion] = useState(false);
     const [garantiaExtendida, setGarantiaExtendida] = useState(false);
     const [metodoPago, setMetodoPago] = useState('tarjeta');
     const [plazoPago, setPlazoPago] = useState('contado');
 
-    // Cálculos
+    //CÁLCULOS 
     const subtotal = cart.reduce((acc, item) => acc + Number(item.precio), 0);
     const costoEnvio = tipoEnvio === 'estado' ? subtotal * 0.05 : 0;
     const costoInstalacion = requiereInstalacion ? subtotal * 0.10 : 0;
     const costoGarantia = garantiaExtendida ? subtotal * 0.15 : 0;
     const totalFinal = subtotal + costoEnvio + costoInstalacion + costoGarantia;
 
+    const handleAddressChange = (e) => {
+        setDireccion({ ...direccion, [e.target.name]: e.target.value });
+    };
+
     const handleCompra = (e) => {
         e.preventDefault();
 
-        // 1. CREAMOS EL OBJETO DEL NUEVO PEDIDO
+        // Validación simple de dirección
+        if (!direccion.calle || !direccion.cp) {
+            alert("Por favor completa la dirección de entrega.");
+            return;
+        }
+
+        // 1. CREAMOS EL PEDIDO
         const nuevoPedido = {
             id: `PED-${Date.now().toString().slice(-6)}`,
             fecha: new Date().toLocaleDateString('es-MX'),
             total: totalFinal,
             estado: "Procesando",
             metodoPago: metodoPago === 'tarjeta' ? 'Tarjeta Crédito/Débito' : 'Monedero Electrónico',
-            items: cart
+            items: cart,
+            direccionEntrega: direccion
         };
 
-        // 2. GUARDAMOS EN HISTORIAL
+        // 2. GUARDAMOS EN HISTORIAL 
         const historialActual = JSON.parse(localStorage.getItem('historial_compras')) || [];
         const historialActualizado = [nuevoPedido, ...historialActual];
         localStorage.setItem('historial_compras', JSON.stringify(historialActualizado));
 
-        // 3. Limpieza y redirección
+        // 3. FINALIZAR
         alert(`¡Compra procesada con éxito!\nTotal: $${totalFinal.toLocaleString()}`);
         dispatch(setCart([]));
         navigate('/purchases');
@@ -53,11 +72,33 @@ const Checkout = () => {
             <h1 className="text-3xl font-bold text-gray-800 mb-8">Finalizar Compra</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {/* COLUMNA IZQUIERDA: FORMULARIO */}
+
+                {/* COLUMNA IZQUIERDA: FORMULARIOS */}
                 <div className="md:col-span-2 space-y-6">
 
-                    {/* SECCION ENVIO */}
-                    <div className="bg-white p-6 rounded-lg shadow-sm">
+                    {/* 1. DIRECCIÓN */}
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
+                        <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                            <i className="fa-solid fa-location-dot text-blue-600"></i> Dirección de Entrega
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="md:col-span-2">
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Calle y Número</label>
+                                <input type="text" name="calle" placeholder="Av. Vallarta 1234" className="w-full border p-2 rounded" onChange={handleAddressChange} />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Código Postal</label>
+                                <input type="text" name="cp" placeholder="44100" className="w-full border p-2 rounded" onChange={handleAddressChange} />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Ciudad</label>
+                                <input type="text" name="ciudad" placeholder="Guadalajara" className="w-full border p-2 rounded" onChange={handleAddressChange} />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 2. ENVÍO */}
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                         <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
                             <i className="fa-solid fa-truck text-blue-600"></i> Método de Envío
                         </h2>
@@ -77,7 +118,7 @@ const Checkout = () => {
                                 <div className="flex items-center gap-3">
                                     <input type="radio" name="envio" value="estado" checked={tipoEnvio === 'estado'} onChange={() => setTipoEnvio('estado')} />
                                     <div>
-                                        <p className="font-bold">Interior del Estado</p>
+                                        <p className="font-bold">Exterior del Área Metropolitana de Guadalajara</p>
                                         <p className="text-sm text-gray-500">Entrega de 3 a 5 días hábiles</p>
                                     </div>
                                 </div>
@@ -86,8 +127,8 @@ const Checkout = () => {
                         </div>
                     </div>
 
-                    {/* SECCION PAGO */}
-                    <div className="bg-white p-6 rounded-lg shadow-sm">
+                    {/* 3. PAGO */}
+                    <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
                         <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
                             <i className="fa-regular fa-credit-card text-blue-600"></i> Pago
                         </h2>
@@ -106,39 +147,30 @@ const Checkout = () => {
                                     <option value="contado">De Contado</option>
                                     <option value="3msi">3 Meses sin intereses</option>
                                     <option value="6msi">6 Meses sin intereses</option>
-                                    {/* --- AGREGADO 12 MESES --- */}
+
                                     <option value="12msi">12 Meses sin intereses</option>
                                 </select>
                             </div>
                         </div>
 
-                        {/* --- CAMPOS DE TARJETA (Regresaron) --- */}
+
                         {metodoPago === 'tarjeta' && (
                             <div className="mt-4 p-5 bg-gray-50 border border-gray-200 rounded-lg space-y-4">
                                 <div>
                                     <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Número de Tarjeta</label>
                                     <div className="relative">
                                         <i className="fa-brands fa-cc-visa absolute left-3 top-3 text-gray-400 text-lg"></i>
-                                        <input
-                                            type="text"
-                                            placeholder="0000 0000 0000 0000"
-                                            className="w-full pl-10 p-2 border rounded focus:border-blue-500 outline-none"
-                                            maxLength="19"
-                                        />
+                                        <input type="text" placeholder="0000 0000 0000 0000" className="w-full pl-10 p-2 border rounded focus:border-blue-500 outline-none" maxLength="19" />
                                     </div>
                                 </div>
-
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Fecha de Expiración</label>
+                                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Fecha Expiración</label>
                                         <input type="text" placeholder="MM/AA" className="w-full p-2 border rounded focus:border-blue-500 outline-none" maxLength="5" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-bold text-gray-500 uppercase mb-1">CVV</label>
-                                        <div className="relative">
-                                            <i className="fa-solid fa-lock absolute left-3 top-3 text-gray-400 text-xs"></i>
-                                            <input type="password" placeholder="123" className="w-full pl-8 p-2 border rounded focus:border-blue-500 outline-none" maxLength="4" />
-                                        </div>
+                                        <input type="password" placeholder="123" className="w-full p-2 border rounded focus:border-blue-500 outline-none" maxLength="4" />
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2 text-xs text-gray-500 mt-2">
@@ -152,7 +184,7 @@ const Checkout = () => {
 
                 {/* COLUMNA DERECHA: RESUMEN */}
                 <div className="md:col-span-1">
-                    <div className="bg-white p-6 rounded-lg shadow-sm sticky top-20">
+                    <div className="bg-white p-6 rounded-lg shadow-sm sticky top-20 border border-gray-100">
                         <h2 className="text-xl font-bold mb-4">Resumen</h2>
                         <div className="space-y-3 mb-6 border-b pb-6">
                             <label className="flex items-start gap-2 cursor-pointer">
@@ -161,7 +193,7 @@ const Checkout = () => {
                             </label>
                             <label className="flex items-start gap-2 cursor-pointer">
                                 <input type="checkbox" className="mt-1" checked={garantiaExtendida} onChange={(e) => setGarantiaExtendida(e.target.checked)} />
-                                <div className="text-sm"><span className="block font-semibold">Garantía Extendida (+15%)</span></div>
+                                <div className="text-sm"><span className="block font-semibold">Garantía (+15%)</span></div>
                             </label>
                         </div>
 

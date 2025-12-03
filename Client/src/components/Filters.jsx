@@ -6,7 +6,7 @@ const Filters = ({ onFilter, categorias }) => {
     const [categoriaSeleccionada, setCategoriaSeleccionada] = useState("");
     const [precioMaximo, setPrecioMaximo] = useState(20000);
 
-    // Función que se ejecuta cada vez que cambia un input
+
     const aplicarFiltros = (e) => {
         // Prevenimos recarga si es un submit de formulario
         if (e && e.preventDefault) e.preventDefault();
