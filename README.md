@@ -1,149 +1,98 @@
-Easy ElectroShop 🛒
+# 🛒 Easy ElectroShop - Full Stack E-Commerce
 
-Easy ElectroShop es una aplicación de comercio electrónico Full Stack desarrollada con React (Frontend) y Node.js/Express (Backend). Permite a los usuarios explorar un catálogo de electrodomésticos, filtrar productos, gestionar un carrito de compras y simular un proceso de pago completo con reglas de negocio específicas.
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![Express](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)](https://expressjs.com/)
+[![Redux](https://img.shields.io/badge/Redux-764ABC?style=for-the-badge&logo=redux&logoColor=white)](https://redux.js.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-🚀 Características Principales
+**Easy ElectroShop** es una aplicación de comercio electrónico robusta desarrollada con el stack **PERN/MERN** (adaptada con base de datos en memoria para propósitos de demostración). Permite gestionar un flujo de compra completo, desde la autenticación hasta el seguimiento de pedidos en tiempo real.
 
-Catálogo Interactivo: Visualización de productos con imágenes reales, precios y descripciones.
+> **🚀 DEMO EN VIVO:** [Visitar Easy ElectroShop en Render](https://cliente-easyelectroshop.onrender.com)
 
-Búsqueda y Filtros: Filtrado por nombre, categoría y rango de precios.
+---
 
-Carrito de Compras: Gestión de productos (agregar, eliminar, vaciar) persistente mediante Redux.
+## ✨ Características Principales
 
-Autenticación de Usuarios: Registro e inicio de sesión con validación de usuarios duplicados.
+* **🛍️ Catálogo Interactivo:** Visualización de productos con imágenes reales, precios y gestión de stock.
+* **🔍 Búsqueda y Filtros:** Sistema avanzado para filtrar por nombre, categoría y rango de precios de forma dinámica.
+* **🛒 Carrito de Compras:** Gestión persistente mediante **Redux Toolkit** (añadir, eliminar y vaciar).
+* **🔐 Autenticación de Usuarios:** Registro e inicio de sesión con validación de credenciales y control de usuarios duplicados.
+* **💳 Simulación de Compra (Checkout):**
+    * Cálculo automático de costos de envío (Local vs Foráneo).
+    * Servicios adicionales (Instalación, Garantía).
+    * Métodos de pago flexibles y selección de plazos (MSI).
+* **📊 Historial de Pedidos:** Panel de usuario con resumen de gastos y cambio de estatus automático (Procesando -> Enviado).
 
-Simulación de Compra (Checkout):
+---
 
-Cálculo automático de costos de envío (Local vs Foráneo).
+## 🛠️ Tecnologías Utilizadas
 
-Servicios adicionales (Instalación, Garantía).
+### **Frontend**
+* **React** & **Vite**: Biblioteca principal y herramienta de construcción.
+* **Redux Toolkit**: Manejo del estado global de la aplicación.
+* **React Router DOM**: Gestión de navegación y rutas protegidas.
+* **Tailwind CSS**: Estilizado responsivo y moderno.
+* **React Hook Form**: Gestión eficiente de formularios de contacto y pago.
 
-Métodos de pago (Tarjeta, Monedero) y plazos (Meses sin intereses).
+### **Backend**
+* **Node.js** & **Express.js**: Entorno de ejecución y framework para la API REST.
+* **CORS**: Seguridad para el intercambio de recursos entre orígenes.
+* **LocalStorage**: Persistencia de sesión y datos del historial en el cliente.
 
-Historial de Pedidos: Panel de usuario con resumen de gastos y seguimiento de estatus de envío.
+---
 
-Persistencia de Datos: Uso de localStorage para mantener la sesión y el historial de compras activo.
-
-🛠️ Tecnologías Utilizadas
-
-Frontend: React, Redux Toolkit, React Router DOM, Tailwind CSS, React Hook Form.
-
-Backend: Node.js, Express.js, CORS.
-
-Despliegue: Render (Web Service para API, Static Site para Cliente).
-
-📂 Estructura del Código y Funciones Clave
-
-A continuación se describe brevemente la responsabilidad de los archivos más importantes del proyecto.
-
-1. Backend (/server)
-
-server.js: Es el corazón del servidor.
-
-Base de Datos (Memoria): Contiene el array productos con la información del catálogo y el array usuariosRegistrados para almacenar temporalmente los usuarios.
-
-Endpoints (Rutas):
-
-GET /api/productos: Devuelve la lista completa de electrodomésticos.
-
-GET /api/productos/:id: Busca y devuelve un producto específico por su ID.
-
-POST /api/register: Recibe datos de un nuevo usuario, valida si el correo ya existe y lo guarda.
-
-POST /api/login: Verifica las credenciales (correo/contraseña) y devuelve el usuario si es correcto.
-
-2. Frontend (/client/src)
-
-Configuración Global
-
-main.jsx: Punto de entrada de React. Configura el Provider de Redux para que toda la app tenga acceso al estado global.
-
-App.jsx: Define el enrutamiento (react-router-dom). Estructura la navegación entre páginas y protege las rutas privadas (como Checkout y Perfil) usando ProtectedRoutes.
-
-Gestión de Estado (Redux)
-
-store/slices/cart.slice.jsx: Maneja la lógica del carrito de compras.
-
-addToCartLocal: Añade un producto al array del carrito.
-
-removeFromCart: Elimina un producto específico por su ID.
-
-setCart: Reemplaza el carrito completo (útil para vaciarlo al comprar).
-
-thunkCartPost: Función asíncrona (Thunk) para manejar la acción de agregar productos.
-
-Componentes (/components)
-
-Navbar.jsx: Barra de navegación superior. Muestra el nombre del usuario logueado, enlaces principales y el contador de productos en el carrito.
-
-Cart.jsx: Panel lateral deslizante (Offcanvas). Muestra el resumen de productos seleccionados y redirige al Checkout.
-
-Filters.jsx: Contiene la barra de búsqueda, el selector de categorías y el slider de precio. Comunica los filtros seleccionados a Home.jsx.
-
-ProtectedRoutes.jsx: Componente de seguridad. Verifica si existe un token en localStorage. Si no existe, redirige al usuario al Login.
-
-Páginas (/pages)
-
-Home.jsx: Página principal.
-
-Obtiene los productos del backend (fetch).
-
-Implementa la lógica de filtrado combinada (Nombre + Categoría + Precio).
-
-Renderiza la cuadrícula de productos.
-
-ProductDetail.jsx: Vista individual del producto. Muestra descripción detallada y valida el stock antes de permitir agregar al carrito.
-
-Login.jsx & Register.jsx: Formularios de autenticación. Gestionan la comunicación con el backend para iniciar sesión o crear cuentas, manejando errores (como usuarios duplicados).
-
-Checkout.jsx: Página final de compra.
-
-Calcula el total final aplicando reglas de negocio (envío +5%, instalación +10%).
-
-Recopila la dirección de entrega.
-
-Simula el proceso de pago y guarda la orden en el historial local.
-
-Purchases.jsx: Historial de pedidos.
-
-Lee el localStorage para mostrar las compras pasadas.
-
-Simula el cambio de estatus de "Procesando" a "Enviado" después de 10 segundos.
-
-Muestra un dashboard con el total gastado.
-
-📦 Instalación y Ejecución Local
-
-Si deseas correr este proyecto en tu computadora:
-
-Clonar el repositorio:
-
-git clone <TU_URL_DEL_REPOSITORIO>
+## 📂 Estructura del Proyecto
 
 
-Configurar el Backend:
 
+### **Backend (`/server`)**
+* `server.js`: Servidor principal que gestiona los productos y usuarios en memoria.
+* **Endpoints Clave:**
+    * `GET /api/productos`: Lista completa de electrodomésticos.
+    * `POST /api/register` & `POST /api/login`: Gestión de acceso.
+
+### **Frontend (`/client/src`)**
+* **`store/slices/cart.slice.jsx`**: Lógica centralizada para el manejo del carrito.
+* **`components/`**: Componentes reutilizables como la `Navbar`, `Cart` (Offcanvas) y `ProtectedRoutes`.
+* **`pages/`**:
+    * `Home.jsx`: Lógica de filtrado combinada.
+    * `Checkout.jsx`: Lógica de negocio (costos extras de envío e instalación).
+    * `Purchases.jsx`: Dashboard de seguimiento y gastos totales.
+
+---
+
+## 🚀 Instalación y Ejecución Local
+
+Si deseas correr este proyecto en tu propia máquina:
+
+### 1. Clonar el repositorio
+```bash
+git clone [https://github.com/RaulHerrera09/TU_REPOSITORIO.git](https://github.com/RaulHerrera09/TU_REPOSITORIO.git)
+cd Easy-ElectroShop
+```
+
+### 2. Configurar el Backend:
+```bash
 cd server
 npm install
 node server.js
+# El servidor correrá en http://localhost:3001
+```
 
-
-(El servidor correrá en el puerto 3001)
-
-Configurar el Frontend:
-(En una nueva terminal)
-
+### 3. Configurar el Frontend:
+En una nueva terminal:
+```bash
 cd client
 npm install
 npm run dev
+# El cliente correrá en http://localhost:5173
+```
 
+## 🧠 Sobre el Desarrollador
+Soy estudiante de Ingeniería en Sistemas Computacionales en la Universidad Lamar (Graduación prevista para 2026), especializado en la intersección entre el Análisis de Datos y la Ingeniería de Software. Desarrollo herramientas que transforman datos crudos y complejos en inteligencia de negocios accionable.
 
-(El cliente correrá en el puerto 5173)
+Portafolio: raulherrera09.github.io/RaulHerrera.github.io/
 
-🌐 Enlace al Proyecto
-
-Puedes ver el proyecto en vivo aquí: https://cliente-easyelectroshop.onrender.com
-Easy ElectroShop en Render
-
-Desarrollado por [Raul Herrera Delgadillo] - 2025
+LinkedIn: @raulherreradelgadillo
 
